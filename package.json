@@ -1,0 +1,12 @@
+{
+  "name": "@graphql-api/rossum",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "graphql": "^15.5.0",
+    "graphql-scalars": "^1.9.0",
+    "apollo-datasource-rest": "^0.12.0"
+  },
+  "optionalDependencies": {
+    "apollo-server-micro": "^2.23.0"
+  }
+}
