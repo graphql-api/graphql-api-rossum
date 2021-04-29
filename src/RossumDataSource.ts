@@ -23,13 +23,8 @@ export class RossumDataSource extends RESTDataSource {
   }
 
   async willSendRequest(request) {
-    // const loginData = this.login()
-    // console.log(loginData)
     const token = await this.token
-    request.headers.set(
-      'Authorization',
-      `token ${token}` //`token 666a5f1544ab388798733686d45c0b8ca3e6ba5f`
-    )
+    request.headers.set('Authorization', `token ${token}`)
   }
 
   async login() {
