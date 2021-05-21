@@ -1,34 +1,17 @@
 import { typeDefs as scalars } from 'graphql-scalars'
-import { gql } from 'apollo-server-micro'
+import { gql } from 'graphql-tag'
+import { typeDefs as annotationTypeDefs } from './Annotation/typeDefs'
+import { typeDefs as documentTypeDefs } from './Document/typeDefs'
+import { typeDefs as workspaceTypeDefs } from './Workspace/typeDefs'
 
 export const typeDefs = gql`
   ${scalars}
 
+  ${documentTypeDefs}
+
   interface Node {
     id: Int
     url: String
-  }
-
-  type Workspace implements Node {
-    id: Int!
-    url: String
-    name: String
-    autopilot: Boolean
-    organization: Organization
-    queues: [Queue]
-  }
-
-  type Document implements Node {
-    id: Int
-    url: String
-    file: String
-    s3_name: String
-    annotations: [Annotation]
-    mime_type: String
-    arrived_at: String
-    original_file_name: String
-    content: String
-    original: String
   }
 
   type Page {
@@ -42,78 +25,8 @@ export const typeDefs = gql`
     content: String
   }
 
-  type AnnotationSchema {
-    id: Int!
-  }
 
-  enum CONTENT_CATEGORY {
-    section
-    datapoint
-    multivalue
-    tuple
-  }
 
-  enum CONTENT_VALUE_TYPE {
-    number
-    string
-  }
-
-  interface Content {
-    category: CONTENT_CATEGORY
-    schema_id: String
-  }
-
-  type Tuple implements Content {
-    category: CONTENT_CATEGORY
-    schema_id: String
-  }
-
-  type Multivalue implements Content {
-    category: CONTENT_CATEGORY
-    schema_id: String
-    children: JSON
-  }
-
-  type Datapoint implements Content {
-    category: CONTENT_CATEGORY
-    schema_id: String
-    rir_confidence: String
-    value: String
-    type: CONTENT_VALUE_TYPE
-  }
-
-  type ContentSection {
-    id: Int!
-    url: String
-    schema_id: String
-    category: CONTENT_CATEGORY
-    children: [Content]
-  }
-
-  type AnnotationContent implements Node {
-    id: Int!
-    url: String
-  }
-
-  type Annotation implements Node {
-    id: Int
-    url: String
-    document: Document
-    queue: String
-    schema: AnnotationSchema
-    relations: [String]
-    pages: [Page]
-    modifier: String
-    modified_at: DateTime
-    confirmed_at: DateTime
-    exported_at: String
-    assigned_at: String
-    status: String
-    rir_poll_id: String
-    messages: [String]
-    content: [ContentSection]
-    time_spent: Int
-  }
 
   type WebhookConfig {
     url: String

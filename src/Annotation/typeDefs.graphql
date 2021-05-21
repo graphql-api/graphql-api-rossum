@@ -1,0 +1,78 @@
+  enum CONTENT_CATEGORY {
+    section
+    datapoint
+    multivalue
+    tuple
+  }
+
+  type ContentSection {
+    id: Int!
+    url: String
+    schema_id: String
+    category: CONTENT_CATEGORY
+    children: [Content]
+  }
+
+  enum CONTENT_VALUE_TYPE {
+    number
+    string
+  }
+
+  interface Content {
+    category: CONTENT_CATEGORY
+    schema_id: String
+  }
+
+  type Tuple implements Content {
+    category: CONTENT_CATEGORY
+    schema_id: String
+  }
+
+  type Multivalue implements Content {
+    category: CONTENT_CATEGORY
+    schema_id: String
+    children: JSON
+  }
+
+  type Datapoint implements Content {
+    category: CONTENT_CATEGORY
+    schema_id: String
+    rir_confidence: String
+    value: String
+    type: CONTENT_VALUE_TYPE
+  }
+
+  type AnnotationContent implements Node {
+    id: Int!
+    url: String
+  }
+
+  type AnnotationSchema {
+    id: Int!
+  }
+
+  type Annotation implements Node {
+    id: Int
+    url: String
+    document: Document
+    queue: String
+    schema: AnnotationSchema
+    relations: [String]
+    pages: [Page]
+    modifier: String
+    modified_at: DateTime
+    confirmed_at: DateTime
+    exported_at: String
+    assigned_at: String
+    status: String
+    rir_poll_id: String
+    messages: [String]
+    content: [ContentSection]
+    time_spent: Int
+  }
+
+type Query {
+    startAnnotation: 
+    startEmbeddedAnnotation:
+    createEmbeddedUrlForAnnotation:
+  }

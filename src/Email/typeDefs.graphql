@@ -1,0 +1,72 @@
+type Inbox {
+  id: ID!
+  name: String
+  url: URL
+  email: EmailAddress
+  email_prefix: String
+  bounce_email_to: EmailAddress
+  bounce_unprocessable_attachments: Boolean
+  bounce_deleted_annotations: Boolean
+  bounce_email_with_no_attachments: Boolean
+  queues: [URL]
+}
+
+enum EmailType {
+  outgoing
+  incoming
+}
+
+type EmailParticipant {
+  email: String
+  name: String
+}
+
+type Email {
+  id: ID!
+  url: URL
+  inbox: Inbox
+  parent: Email
+  arrived_at: DateTime
+  subject: String
+  body_text_plain: String
+  body_text_html: String
+  type: EmailType
+  bcc: [EmailParticipant]
+  cc: [EmailParticipant]
+  to: [EmailParticipant]
+  from: EmailParticipant
+  children: [Email]
+  documents: [Document]
+  metadata: JSON
+}
+
+type Query {
+  listInboxes(input: ListInboxesInput): [Inbox]
+  retrieveInbox: Inbox
+  listEmails: [Email]
+  retrieveEmail: Email
+}
+
+input ListInboxesInput {
+  filter: ListInboxesFilterInput
+}
+
+input ListInboxesFilterInput {
+  id: ID
+  name: String
+  email: EmailAddress
+  email_prefix: String
+  bounce_email_to: EmailAddress
+  bounce_unprocessable_attachments: Boolean
+  bounce_postponed_annotations: Boolean
+  bounce_deleted_annotations: Boolean
+}
+
+type Mutation {
+  createInbox: Inbox
+  updateInbox: Inbox
+  deleteInbox: Inbox
+  createEmail: Email
+  updateEmail: Email
+  sendEmail: Email
+}

@@ -6,7 +6,7 @@ import { resolvers as scalars } from 'graphql-scalars'
 export const resolvers: GraphQLResolverMap<{ dataSources: { rossum: RossumDataSource } }> = {
   ...scalars,
   Content: {
-    __resolveType(obj, contect, info) {
+    __resolveType(obj, context, info) {
       switch (obj.category) {
         case 'datapoint':
           return 'Datapoint'

@@ -1,0 +1,47 @@
+# import Node from '../Node.graphql'
+# import Annotation from '../Annotation/typeDefs.graphql'
+
+type Document implements Node {
+  id: Int
+  url: String
+  file: String
+  s3_name: String
+  annotations: [Annotation]
+  mime_type: String
+  arrived_at: String
+  original_file_name: String
+  content: String
+  original: String
+}
+
+type Query {
+  listDocuments(input: ListDocumentsInput): [Document]
+  retrieveDocument(input: RetrieveDocumentInput!): Document
+}
+
+input RetrieveDocumentInput {
+  id: ID!
+}
+
+input ListDocumentsInput {
+  filter: ListDocumentsFilterInput
+  order: ListDocumentsOrderInput
+}
+
+input ListDocumentsFilterInput {
+  id: ID
+  arrived_at: DateTime
+  original_file_name: String
+}
+
+input ListDocumentsOrderInput {
+  id: ID
+  arrived_at: DateTime
+  original_file_name: String
+  s3_name: String
+  mime_type: String
+}
+
+# type Mutation {
+#   deleteDocument():
+# }
