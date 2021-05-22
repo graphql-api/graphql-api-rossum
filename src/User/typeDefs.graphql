@@ -1,0 +1,64 @@
+# import Node, RossumEntity from '../Node.graphql'
+
+type Membership {
+  id: ID!
+  url: URL
+  user: User
+  organization: Organization
+}
+
+type UserRole {
+  id: ID!
+  url: URL
+  name: String
+}
+
+type User implements Node & RossumEntity {
+  id: ID!
+  url: URL
+  first_name: String
+  last_name: String
+  email: EmailAddress
+  date_joined: DateTime
+  username: String
+  organization: Organization
+  is_active: Boolean
+  last_login: DateTime
+  oidc_id: String
+  queues: [UserRole]
+  groups: [String]
+}
+
+type Query {
+  listUserRoles: [UserRole]
+  retrieveUserRole: UserRole
+  listMemberships: [Membership]
+  retrieveMembership: Membership
+  listUsers: [User]
+  retrieveUser: User
+}
+
+type Mutation {
+  createMembership: Membership
+  updateMembership: Membership
+  deleteMembership: Membership
+  createUser: User
+  updateUser: User
+  deleteUser: User
+  changePassword(input: ChangePasswordInput!): User
+  resetPassword(input: ResetPasswordInput!): ResetPasswordPayload
+}
+
+type ResetPasswordPayload {
+  detail: String
+}
+
+input ChangePasswordInput {
+  new_password1: String
+  new_password2: String
+  old_password: String
+}
+
+input ResetPasswordInput {
+  email: EmailAddress
+}

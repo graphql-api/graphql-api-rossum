@@ -1,78 +1,148 @@
-  enum CONTENT_CATEGORY {
-    section
-    datapoint
-    multivalue
-    tuple
-  }
+enum CONTENT_CATEGORY {
+  section
+  datapoint
+  multivalue
+  tuple
+}
 
-  type ContentSection {
-    id: Int!
-    url: String
-    schema_id: String
-    category: CONTENT_CATEGORY
-    children: [Content]
-  }
+type ContentSection {
+  id: Int!
+  url: String
+  schema_id: String
+  category: CONTENT_CATEGORY
+  children: [Content]
+}
 
-  enum CONTENT_VALUE_TYPE {
-    number
-    string
-  }
+enum CONTENT_VALUE_TYPE {
+  number
+  string
+}
 
-  interface Content {
-    category: CONTENT_CATEGORY
-    schema_id: String
-  }
+interface Content {
+  category: CONTENT_CATEGORY
+  schema_id: String
+}
 
-  type Tuple implements Content {
-    category: CONTENT_CATEGORY
-    schema_id: String
-  }
+type Tuple implements Content {
+  category: CONTENT_CATEGORY
+  schema_id: String
+}
 
-  type Multivalue implements Content {
-    category: CONTENT_CATEGORY
-    schema_id: String
-    children: JSON
-  }
+type Multivalue implements Content {
+  category: CONTENT_CATEGORY
+  schema_id: String
+  children: JSON
+}
 
-  type Datapoint implements Content {
-    category: CONTENT_CATEGORY
-    schema_id: String
-    rir_confidence: String
-    value: String
-    type: CONTENT_VALUE_TYPE
-  }
+type Datapoint implements Content {
+  category: CONTENT_CATEGORY
+  schema_id: String
+  rir_confidence: String
+  value: String
+  type: CONTENT_VALUE_TYPE
+}
 
-  type AnnotationContent implements Node {
-    id: Int!
-    url: String
-  }
+type AnnotationContent implements Node {
+  id: Int!
+  url: String
+}
 
-  type AnnotationSchema {
-    id: Int!
-  }
+type AnnotationSchema {
+  id: Int!
+}
 
-  type Annotation implements Node {
-    id: Int
-    url: String
-    document: Document
-    queue: String
-    schema: AnnotationSchema
-    relations: [String]
-    pages: [Page]
-    modifier: String
-    modified_at: DateTime
-    confirmed_at: DateTime
-    exported_at: String
-    assigned_at: String
-    status: String
-    rir_poll_id: String
-    messages: [String]
-    content: [ContentSection]
-    time_spent: Int
-  }
+enum AnnotationStatus {
+  """
+  Document is being processed by the AI Engine for data extraction; initial state of the annotation.
+  """
+  importing
+  """
+  Import failed e.g. due to a malformed document file.
+  """
+  failed_import
+  """
+  Annotation was split in user interface and new annotations were created from it.
+  """
+  split
+  """
+  Initial extraction step is done and the annotation is waiting for user validation.
+  """
+  to_review
+  """
+  Annotation is undergoing validation in the user interface.
+  """
+  reviewing
+  """
+  Annotation is validated and confirmed by the user. This status must be explicitly enabled on the queue to be present.
+  """
+  confirmed
+  """
+  Annotation is validated and is now awaiting the completion of connector save call. See connector extension for more information on this status.
+  """
+  exporting
+  """
+  Annotation is validated and successfully passed all hooks; this is the typical terminal state of an annotation.
+  """
+  exported
+  """
+  When the connector returned an error.
+  """
+  failed_export
+  """
+  Operator has chosen to postpone the annotation instead of exporting it.
+  """
+  postponed
+  """
+  When the annotation was deleted by the user.
+  """
+  deleted
+  """
+  Only metadata was preserved after a deletion. Internal status, shall not be used in production.
+  """
+  purged
+}
 
-type Query {
-    startAnnotation: 
-    startEmbeddedAnnotation:
-    createEmbeddedUrlForAnnotation:
-  }
+type Annotation implements Node {
+  id: Int
+  url: String
+  document: Document
+  queue: String
+  schema: AnnotationSchema
+  relations: [String]
+  pages: [Page]
+  modifier: String
+  modified_at: DateTime
+  confirmed_at: DateTime
+  exported_at: String
+  assigned_at: String
+  status: String
+  rir_poll_id: String
+  messages: [String]
+  content: [ContentSection]
+  time_spent: Int
+}
+
+type EmbeddedUrlResponse {
+  url: URL
+  status: AnnotationStatus
+}
+
+type StartAnnotationResponse {
+  annotation: Annotation
+  session_timeout: String
+}
+
+type StartEmbeddedAnnotationResponse {
+  url: URL
+}
+
+type CreateEmbeddedUrlForAnnotationResponse {
+  url: URL
+  status: AnnotationStatus
+}
+
+type Query {
+  startAnnotation: StartAnnotationResponse
+  startEmbeddedAnnotation: StartEmbeddedAnnotationResponse
+  createEmbeddedUrlForAnnotation: CreateEmbeddedUrlForAnnotationResponse
+}

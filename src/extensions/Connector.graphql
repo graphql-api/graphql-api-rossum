@@ -1,0 +1,38 @@
+type Connector implements Node, RossumEntity {
+  id: ID!
+  url: URL
+  name: String
+  service_url: URL
+  params: String
+  client_ssl_certificate: String
+  authorization_token: String
+  asynchronous: Boolean
+  queues: [Queue]
+  metadata: JSON
+}
+
+type Query {
+  listConnectors: [Connector]
+  retrieveConnector: Connector
+}
+
+type Mutation {
+  createConnector(input: CreateConnectorInput!): Connector
+  updateConnector(input: UpdateConnectorInput!): Connector
+  deleteConnector(input: DeleteConnectorInput!): Connector
+}
+
+input CreateConnectorInput {
+  name: String!
+  queue: [URL!]!
+  service_url: URL!
+  authorization_token: String
+}
+
+input UpdateConnectorInput {
+  id: ID!
+}
+
+input DeleteConnectorInput {
+  id: ID!
+}

@@ -1,0 +1,35 @@
+# import Node, RossumEntity from '../Node.graphql'
+
+type Workspace implements Node & RossumEntity {
+  id: ID!
+  url: URL!
+  name: String
+  autopilot: Boolean
+  organization: Organization
+  queues: [Queue]
+}
+
+type Query {
+  listWorkspaces(input: ListWorkspacesInput): [Workspace]
+  retrieveWorkspace(input: RetrieveWorkspaceInput!): Workspace
+}
+
+input RetrieveWorksspaceInput {
+  id: ID!
+}
+
+input ListWorkspacesInput {
+  filter: ListWorkspacesFilterInput
+  order: ListWorkspacesOrderInput
+}
+
+input ListWorkspacesFilterInput {
+  id: ID
+  name: String
+  organization: ID
+}
+
+input ListWorkspacesOrderInput {
+  id: ID
+  name: String
+}

@@ -1,0 +1,102 @@
+# import Node, RossumEntity from '../Node.graphql'
+# import Queue from '../Queue/typeDefs.graphql'
+
+type HookConfig {
+  url: String
+  secret: String
+  insecure_ssl: Boolean
+  client_ssl_certificate: String
+}
+
+enum HookType {
+  webhook
+  function
+}
+
+enum HookEvent {
+  annotation_status
+  annotation_status__changed
+  annotation_content
+  annotation_content__initialize
+  annotation_content__user_update
+  """
+  annotation_content.export
+  """
+  annotation_content__export
+  """
+  email.received
+  """
+  email
+  email__received
+}
+
+type Hook implements Node & RossumEntity {
+  id: ID
+  url: URL
+  type: HookType
+  name: String
+  active: Boolean
+  config: HookConfig
+  events: [HookEvent]
+  sideload: [String]
+  run_after: [String]
+  queues: [Queue]
+}
+
+type Query {
+  listHooks: [Hook]
+  retrieveHook: Hook
+}
+
+type Mutation {
+  createHook(input: CreateHookInput!): Hook
+  updateHook(input: UpdateHookInput!): Hook
+  deleteHook(input: DeleteHookInput!): Hook
+  testHook(input: TestHookInput): TestHookResponse
+}
+
+type TestHookResponse {
+  detail: String
+}
+
+input CreateHookInput {
+  name: String
+  queues: [URL]
+  config: HookConfigInput
+  events: [HookEvent]
+}
+
+input UpdateHookInput {
+  id: ID!
+  name: String
+  queues: [URL]
+  config: HookConfigInput
+  events: [HookEvent]
+}
+
+input HookConfigInput {
+  url: String
+  secret: String
+  insecure_ssl: Boolean
+  client_ssl_certificate: String
+}
+
+input DeleteHookInput {
+  id: ID!
+}
+
+input TestHookInput {
+  config: HookConfigInput
+  payload: TestHookPayloadInput!
+}
+
+"""
+Payload sent to the Hook, please note only supported combination of action and event can be passed.
+"""
+input TestHookPayloadInput {
+  action: String
+  event: HookEvent
+  annotation: JSON
+  document: JSON
+  settings: JSON
+}

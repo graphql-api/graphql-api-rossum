@@ -1,0 +1,9 @@
+# import Node, RossumEntity from '../Node.graphql'
+
+type Queue implements Node {
+  id: ID!
+  url: URL
+  name: String
+  workspace: Workspace
+  export: [Annotation]
+}

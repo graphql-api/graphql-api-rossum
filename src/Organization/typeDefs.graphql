@@ -1,0 +1,13 @@
+# import Node, RossumEntity from '../Node.graphql'
+# import Workspace from '../WorkSpace/typeDefs.graphql'
+# import User from '../User/typeDefs.graphql'
+
+type Organization implements Node & RossumEntity {
+  id: ID!
+  url: URL
+  name: String
+  workspaces: [Workspace]
+  users: [User]
+  trial_expires_at: String
+  is_trial: Boolean
+}
