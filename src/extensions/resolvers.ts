@@ -1,7 +1,19 @@
 import { Resolvers } from '../types'
+import { Node } from '@graphql-api/tools'
+import { getID } from '../dataSource'
 
 export const resolvers: Resolvers = {
-  Hook: {
+  RossumConnector: {
+    id(root) {
+      const id = root.id || root.url ? getID(root.url) : null
+      return Node.toId('RossumConnector', id)
+    }
+  },
+  RossumHook: {
+    id(root) {
+      const id = root.id || root.url ? getID(root.url) : null
+      return Node.toId('RossumHook', id)
+    },
     events(root) {
       if (root.events) {
         return root.events.map(formatHookEventForGraphQL)

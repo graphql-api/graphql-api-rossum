@@ -1,13 +1,14 @@
 # import Node, RossumEntity from '../Node.graphql'
-# import Workspace from '../WorkSpace/typeDefs.graphql'
-# import User from '../User/typeDefs.graphql'
+# import URL, JSON, EmailAddress, DateTime from '../Scalars.graphql'
+# import RossumWorkspace from '../WorkSpace/typeDefs.graphql'
+# import RossumUser from '../User/typeDefs.graphql'
 
-type Organization implements Node & RossumEntity {
+type RossumOrganization implements Node & RossumEntity @key(fields: "id") {
   id: ID!
-  url: URL
+  url: URL!
   name: String
-  workspaces: [Workspace]
-  users: [User]
+  workspaces: [RossumWorkspace]
+  users: [RossumUser]
   trial_expires_at: String
   is_trial: Boolean
 }

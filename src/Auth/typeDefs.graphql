@@ -1,0 +1,11 @@
+type RossumToken {
+  key: String
+}
+
+extend type Query {
+  token: RossumToken
+}
+
+type Mutation {
+  login: RossumToken
+}

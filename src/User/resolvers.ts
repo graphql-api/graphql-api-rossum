@@ -1,7 +1,25 @@
+import { getID } from '../dataSource'
 import { Resolvers } from '../types'
+import { Node } from '@graphql-api/tools'
 
 export const resolvers: Resolvers = {
-  User: {
+  RossumMembership: {
+    id(root) {
+      const id = root.id || root.url ? getID(root.url) : null
+      return Node.toId('RossumMembership', id)
+    }
+  },
+  RossumUserRole: {
+    id(root) {
+      const id = root.id || root.url ? getID(root.url) : null
+      return Node.toId('RossumUserRole', id)
+    }
+  },
+  RossumUser: {
+    id(root) {
+      const id = root.id || root.url ? getID(root.url) : null
+      return Node.toId('RossumUser', id)
+    },
     async organization(root, args, { dataSources }) {
       if (root.organization)
         return dataSources.rossum.organizations.retrieve(root.organization)

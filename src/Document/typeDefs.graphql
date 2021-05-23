@@ -1,12 +1,13 @@
-# import Node from '../Node.graphql'
-# import Annotation from '../Annotation/typeDefs.graphql'
+# import Node, RossumEntity from '../Node.graphql'
+# import URL, JSON, EmailAddress, DateTime from '../Scalars.graphql'
+# import RossumAnnotation from '../Annotation/typeDefs.graphql'
 
-type Document implements Node {
-  id: Int
-  url: String
+type RossumDocument implements Node & RossumEntity @key(fields: "id") {
+  id: ID!
+  url: URL!
   file: String
   s3_name: String
-  annotations: [Annotation]
+  annotations: [RossumAnnotation]
   mime_type: String
   arrived_at: String
   original_file_name: String
@@ -15,26 +16,26 @@ type Document implements Node {
 }
 
 type Query {
-  listDocuments(input: ListDocumentsInput): [Document]
-  retrieveDocument(input: RetrieveDocumentInput!): Document
+  listDocuments(input: ListRossumDocumentsInput): [RossumDocument]
+  retrieveDocument(input: RetrieveRossumDocumentInput!): RossumDocument
 }
 
-input RetrieveDocumentInput {
+input RetrieveRossumDocumentInput {
   id: ID!
 }
 
-input ListDocumentsInput {
-  filter: ListDocumentsFilterInput
-  order: ListDocumentsOrderInput
+input ListRossumDocumentsInput {
+  filter: ListRossumDocumentsFilterInput
+  order: ListRossumDocumentsOrderInput
 }
 
-input ListDocumentsFilterInput {
+input ListRossumDocumentsFilterInput {
   id: ID
   arrived_at: DateTime
   original_file_name: String
 }
 
-input ListDocumentsOrderInput {
+input ListRossumDocumentsOrderInput {
   id: ID
   arrived_at: DateTime
   original_file_name: String

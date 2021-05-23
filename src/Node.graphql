@@ -1,7 +1,9 @@
+# import URL from './Scalars.graphql'
+
 interface Node {
   id: ID!
 }
 
 interface RossumEntity {
-  url: URL
+  url: URL!
 }

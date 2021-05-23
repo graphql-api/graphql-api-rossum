@@ -1,7 +1,11 @@
-type Inbox {
+# import Node, RossumEntity from '../Node.graphql'
+# import URL, JSON, EmailAddress, DateTime from '../Scalars.graphql'
+# import RossumDocument from '../Document/typeDefs.graphql'
+
+type RossumInbox implements Node & RossumEntity @key(fields: "id") {
   id: ID!
   name: String
-  url: URL
+  url: URL!
   email: EmailAddress
   email_prefix: String
   bounce_email_to: EmailAddress
@@ -11,47 +15,47 @@ type Inbox {
   queues: [URL]
 }
 
-enum EmailType {
+enum RossumEmailType {
   outgoing
   incoming
 }
 
-type EmailParticipant {
-  email: String
+type RossumEmailParticipant {
+  email: EmailAddress
   name: String
 }
 
-type Email {
+type RossumEmail implements Node & RossumEntity @key(fields: "id") {
   id: ID!
-  url: URL
-  inbox: Inbox
-  parent: Email
+  url: URL!
+  inbox: RossumInbox
+  parent: RossumEmail
   arrived_at: DateTime
   subject: String
   body_text_plain: String
   body_text_html: String
-  type: EmailType
-  bcc: [EmailParticipant]
-  cc: [EmailParticipant]
-  to: [EmailParticipant]
-  from: EmailParticipant
-  children: [Email]
-  documents: [Document]
+  type: RossumEmailType
+  bcc: [RossumEmailParticipant]
+  cc: [RossumEmailParticipant]
+  to: [RossumEmailParticipant]
+  from: RossumEmailParticipant
+  children: [RossumEmail]
+  documents: [RossumDocument]
   metadata: JSON
 }
 
 type Query {
-  listInboxes(input: ListInboxesInput): [Inbox]
-  retrieveInbox: Inbox
-  listEmails: [Email]
-  retrieveEmail: Email
+  listInboxes(input: ListRossumInboxesInput): [RossumInbox]
+  retrieveInbox: RossumInbox
+  listEmails: [RossumEmail]
+  retrieveEmail: RossumEmail
 }
 
-input ListInboxesInput {
-  filter: ListInboxesFilterInput
+input ListRossumInboxesInput {
+  filter: ListRossumInboxesFilterInput
 }
 
-input ListInboxesFilterInput {
+input ListRossumInboxesFilterInput {
   id: ID
   name: String
   email: EmailAddress
@@ -63,10 +67,10 @@ input ListInboxesFilterInput {
 }
 
 type Mutation {
-  createInbox: Inbox
-  updateInbox: Inbox
-  deleteInbox: Inbox
-  createEmail: Email
-  updateEmail: Email
-  sendEmail: Email
+  createInbox: RossumInbox
+  updateInbox: RossumInbox
+  deleteInbox: RossumInbox
+  createEmail: RossumEmail
+  updateEmail: RossumEmail
+  sendEmail: RossumEmail
 }

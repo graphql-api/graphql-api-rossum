@@ -1,23 +1,37 @@
 import { getID } from '../dataSource'
+import { Node } from '@graphql-api/tools'
 
 export const resolvers = {
-  Content: {
+  RossumContent: {
     __resolveType(obj, context, info) {
       switch (obj.category) {
         case 'datapoint':
-          return 'Datapoint'
+          return 'RossumDatapoint'
         case 'multivalue':
-          return 'Multivalue'
+          return 'RossumMultivalue'
         case 'tuple':
-          return 'Tuple'
+          return 'RossumTuple'
         default:
           return null
       }
     }
   },
-  Annotation: {
+  RossumContentSection: {
     id(root) {
-      return root.id || root.url ? getID(root.url) : null
+      const id = root.id || root.url ? getID(root.url) : null
+      return Node.toId('RossumContentSection', id)
+    }
+  },
+  RossumAnnotationContent: {
+    id(root) {
+      const id = root.id || root.url ? getID(root.url) : null
+      return Node.toId('RossumAnnotationContent', id)
+    }
+  },
+  RossumAnnotation: {
+    id(root) {
+      const id = root.id || root.url ? getID(root.url) : null
+      return Node.toId('RossumAnnotation', id)
     },
     async document(root, args, { dataSources }) {
       if (root.document && typeof root.document === 'string') {

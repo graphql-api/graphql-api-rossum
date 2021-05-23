@@ -1,38 +1,42 @@
-type Connector implements Node, RossumEntity {
+# import Node, RossumEntity from '../Node.graphql'
+# import URL, JSON, EmailAddress, DateTime from '../Scalars.graphql'
+# import RossumQueue from '../Queue/typeDefs.graphql'
+
+type RossumConnector implements Node & RossumEntity @key(fields: "id") {
   id: ID!
-  url: URL
+  url: URL!
   name: String
   service_url: URL
   params: String
   client_ssl_certificate: String
   authorization_token: String
   asynchronous: Boolean
-  queues: [Queue]
+  queues: [RossumQueue]
   metadata: JSON
 }
 
 type Query {
-  listConnectors: [Connector]
-  retrieveConnector: Connector
+  listConnectors: [RossumConnector]
+  retrieveConnector: RossumConnector
 }
 
 type Mutation {
-  createConnector(input: CreateConnectorInput!): Connector
-  updateConnector(input: UpdateConnectorInput!): Connector
-  deleteConnector(input: DeleteConnectorInput!): Connector
+  createConnector(input: CreateRossumConnectorInput!): RossumConnector
+  updateConnector(input: UpdateRossumConnectorInput!): RossumConnector
+  deleteConnector(input: DeleteRossumConnectorInput!): RossumConnector
 }
 
-input CreateConnectorInput {
+input CreateRossumConnectorInput {
   name: String!
   queue: [URL!]!
   service_url: URL!
   authorization_token: String
 }
 
-input UpdateConnectorInput {
+input UpdateRossumConnectorInput {
   id: ID!
 }
 
-input DeleteConnectorInput {
+input DeleteRossumConnectorInput {
   id: ID!
 }

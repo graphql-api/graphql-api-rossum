@@ -1,14 +1,12 @@
 import { Resolvers } from '../types'
+import { Node } from '@graphql-api/tools'
+import { getID } from '../dataSource'
 
 export const resolvers: Resolvers = {
-  Document: {
-    id(root, args, { dataSources }) {
-      if (root.url && typeof root.url === 'string') {
-        const parts = root.url.split('/')
-        const id = Number(parts[parts.length - 1])
-        return id
-      }
-      return null
+  RossumDocument: {
+    id(root) {
+      const id = root.id || root.url ? getID(root.url) : null
+      return Node.toId('RossumDocument', id)
     },
     content(root) {
       if (!root.content && root.file) {

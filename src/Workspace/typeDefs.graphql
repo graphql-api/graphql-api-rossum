@@ -1,35 +1,38 @@
 # import Node, RossumEntity from '../Node.graphql'
+# import URL, JSON, EmailAddress, DateTime from '../Scalars.graphql'
+# import RossumOrganization from '../Organization/typeDefs.graphql'
+# import RossumQueue from '../Queue/typeDefs.graphql'
 
-type Workspace implements Node & RossumEntity {
+type RossumWorkspace implements Node & RossumEntity @key(fields: "id") {
   id: ID!
   url: URL!
   name: String
   autopilot: Boolean
-  organization: Organization
-  queues: [Queue]
+  organization: RossumOrganization
+  queues: [RossumQueue]
 }
 
 type Query {
-  listWorkspaces(input: ListWorkspacesInput): [Workspace]
-  retrieveWorkspace(input: RetrieveWorkspaceInput!): Workspace
+  listWorkspaces(input: ListRossumWorkspacesInput): [RossumWorkspace]
+  retrieveWorkspace(input: RetrieveRossumWorkspaceInput!): RossumWorkspace
 }
 
-input RetrieveWorksspaceInput {
+input RetrieveRossumWorkspaceInput {
   id: ID!
 }
 
-input ListWorkspacesInput {
-  filter: ListWorkspacesFilterInput
-  order: ListWorkspacesOrderInput
+input ListRossumWorkspacesInput {
+  filter: ListRossumWorkspacesFilterInput
+  order: ListRossumWorkspacesOrderInput
 }
 
-input ListWorkspacesFilterInput {
+input ListRossumWorkspacesFilterInput {
   id: ID
   name: String
   organization: ID
 }
 
-input ListWorkspacesOrderInput {
+input ListRossumWorkspacesOrderInput {
   id: ID
   name: String
 }

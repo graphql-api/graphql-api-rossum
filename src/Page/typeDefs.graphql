@@ -1,8 +1,9 @@
-# import Node from '../Node.graphql'
+# import Node, RossumEntity from '../Node.graphql'
+# import URL, JSON, EmailAddress, DateTime from '../Scalars.graphql'
 
-type Page {
-  id: Int!
-  url: String
+type RossumPage implements Node & RossumEntity @key(fields: "id") {
+  id: ID!
+  url: URL!
   annotation: String
   number: Int
   rotation_deg: Int
@@ -13,6 +14,6 @@ type Page {
 }
 
 type Query {
-  listPages: [Page]
-  retrievePage: Page
+  listPages: [RossumPage]
+  retrievePage: RossumPage
 }

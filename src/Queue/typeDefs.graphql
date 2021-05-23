@@ -1,9 +1,12 @@
 # import Node, RossumEntity from '../Node.graphql'
+# import URL, JSON, EmailAddress, DateTime from '../Scalars.graphql'
+# import RossumAnnotation from '../Annotation/typeDefs.graphql'
+# import RossumWorkspace from '../WorkSpace/typeDefs.graphql'
 
-type Queue implements Node {
+type RossumQueue implements Node & RossumEntity @key(fields: "id") {
   id: ID!
-  url: URL
+  url: URL!
   name: String
-  workspace: Workspace
-  export: [Annotation]
+  workspace: RossumWorkspace
+  export: [RossumAnnotation]
 }

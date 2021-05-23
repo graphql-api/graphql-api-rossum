@@ -1,13 +1,16 @@
+import { getID } from '../dataSource'
 import { Resolvers } from '../types'
+import { Node } from '@graphql-api/tools'
 
 export const resolvers: Resolvers = {
-  Workspace: {
-    id: (root) => String(root.id),
+  RossumWorkspace: {
+    id(root) {
+      const id = root.id || root.url ? getID(root.url) : null
+      return Node.toId('RossumWorkspace', id)
+    },
     async organization(root, args, { dataSources }) {
       if (root.organization)
-        return dataSources.rossum.organizations.retrieve({
-          url: root.organization
-        })
+        return dataSources.rossum.organizations.retrieve(root.organization)
       return null
     },
     async queues(root, args, { dataSources }) {

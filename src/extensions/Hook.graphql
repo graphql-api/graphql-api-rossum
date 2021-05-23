@@ -1,19 +1,20 @@
 # import Node, RossumEntity from '../Node.graphql'
-# import Queue from '../Queue/typeDefs.graphql'
+# import URL, JSON, EmailAddress, DateTime from '../Scalars.graphql'
+# import RossumQueue from '../Queue/typeDefs.graphql'
 
-type HookConfig {
+type RossumHookConfig {
   url: String
   secret: String
   insecure_ssl: Boolean
   client_ssl_certificate: String
 }
 
-enum HookType {
+enum RossumHookType {
   webhook
   function
 }
 
-enum HookEvent {
+enum RossumHookEvent {
   annotation_status
   annotation_status__changed
   annotation_content
@@ -30,72 +31,72 @@ enum HookEvent {
   email__received
 }
 
-type Hook implements Node & RossumEntity {
-  id: ID
-  url: URL
-  type: HookType
+type RossumHook implements Node & RossumEntity @key(fields: "id") {
+  id: ID!
+  url: URL!
+  type: RossumHookType
   name: String
   active: Boolean
-  config: HookConfig
-  events: [HookEvent]
+  config: RossumHookConfig
+  events: [RossumHookEvent]
   sideload: [String]
   run_after: [String]
-  queues: [Queue]
+  queues: [RossumQueue]
 }
 
 type Query {
-  listHooks: [Hook]
-  retrieveHook: Hook
+  listHooks: [RossumHook]
+  retrieveHook: RossumHook
 }
 
 type Mutation {
-  createHook(input: CreateHookInput!): Hook
-  updateHook(input: UpdateHookInput!): Hook
-  deleteHook(input: DeleteHookInput!): Hook
-  testHook(input: TestHookInput): TestHookResponse
+  createHook(input: CreateRossumHookInput!): RossumHook
+  updateHook(input: UpdateRossumHookInput!): RossumHook
+  deleteHook(input: DeleteRossumHookInput!): RossumHook
+  testHook(input: TestRossumHookInput): TestRossumHookResponse
 }
 
-type TestHookResponse {
+type TestRossumHookResponse {
   detail: String
 }
 
-input CreateHookInput {
+input CreateRossumHookInput {
   name: String
   queues: [URL]
-  config: HookConfigInput
-  events: [HookEvent]
+  config: RossumHookConfigInput
+  events: [RossumHookEvent]
 }
 
-input UpdateHookInput {
+input UpdateRossumHookInput {
   id: ID!
   name: String
   queues: [URL]
-  config: HookConfigInput
-  events: [HookEvent]
+  config: RossumHookConfigInput
+  events: [RossumHookEvent]
 }
 
-input HookConfigInput {
+input RossumHookConfigInput {
   url: String
   secret: String
   insecure_ssl: Boolean
   client_ssl_certificate: String
 }
 
-input DeleteHookInput {
+input DeleteRossumHookInput {
   id: ID!
 }
 
-input TestHookInput {
-  config: HookConfigInput
-  payload: TestHookPayloadInput!
+input TestRossumHookInput {
+  config: RossumHookConfigInput
+  payload: TestRossumHookPayloadInput!
 }
 
 """
 Payload sent to the Hook, please note only supported combination of action and event can be passed.
 """
-input TestHookPayloadInput {
+input TestRossumHookPayloadInput {
   action: String
-  event: HookEvent
+  event: RossumHookEvent
   annotation: JSON
   document: JSON
   settings: JSON

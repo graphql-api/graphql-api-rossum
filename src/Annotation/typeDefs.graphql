@@ -1,57 +1,62 @@
-enum CONTENT_CATEGORY {
+# import Node, RossumEntity from '../Node.graphql'
+# import URL, JSON, EmailAddress, DateTime from '../Scalars.graphql'
+# import RossumDocument from '../Document/typeDefs.graphql'
+# import RossumPage from '../Page/typeDefs.graphql'
+
+enum Rossum_CONTENT_CATEGORY {
   section
   datapoint
   multivalue
   tuple
 }
 
-type ContentSection {
-  id: Int!
-  url: String
-  schema_id: String
-  category: CONTENT_CATEGORY
-  children: [Content]
+type RossumContentSection implements Node & RossumEntity @key(fields: "id") {
+  id: ID!
+  url: URL!
+  schema_id: ID
+  category: Rossum_CONTENT_CATEGORY
+  children: [RossumContent]
 }
 
-enum CONTENT_VALUE_TYPE {
+enum Rossum_CONTENT_VALUE_TYPE {
   number
   string
 }
 
-interface Content {
-  category: CONTENT_CATEGORY
+interface RossumContent {
+  category: Rossum_CONTENT_CATEGORY
   schema_id: String
 }
 
-type Tuple implements Content {
-  category: CONTENT_CATEGORY
+type RossumTuple implements RossumContent {
+  category: Rossum_CONTENT_CATEGORY
   schema_id: String
 }
 
-type Multivalue implements Content {
-  category: CONTENT_CATEGORY
+type RossumMultivalue implements RossumContent {
+  category: Rossum_CONTENT_CATEGORY
   schema_id: String
   children: JSON
 }
 
-type Datapoint implements Content {
-  category: CONTENT_CATEGORY
+type RossumDatapoint implements RossumContent {
+  category: Rossum_CONTENT_CATEGORY
   schema_id: String
   rir_confidence: String
   value: String
-  type: CONTENT_VALUE_TYPE
+  type: Rossum_CONTENT_VALUE_TYPE
 }
 
-type AnnotationContent implements Node {
-  id: Int!
-  url: String
+type RossumAnnotationContent implements Node & RossumEntity @key(fields: "id") {
+  id: ID!
+  url: URL!
 }
 
-type AnnotationSchema {
-  id: Int!
+type RossumAnnotationSchema {
+  id: ID!
 }
 
-enum AnnotationStatus {
+enum RossumAnnotationStatus {
   """
   Document is being processed by the AI Engine for data extraction; initial state of the annotation.
   """
@@ -102,14 +107,14 @@ enum AnnotationStatus {
   purged
 }
 
-type Annotation implements Node {
-  id: Int
-  url: String
-  document: Document
+type RossumAnnotation implements Node & RossumEntity @key(fields: "id") {
+  id: ID!
+  url: URL!
+  document: RossumDocument
   queue: String
-  schema: AnnotationSchema
+  schema: RossumAnnotationSchema
   relations: [String]
-  pages: [Page]
+  pages: [RossumPage]
   modifier: String
   modified_at: DateTime
   confirmed_at: DateTime
@@ -118,17 +123,17 @@ type Annotation implements Node {
   status: String
   rir_poll_id: String
   messages: [String]
-  content: [ContentSection]
+  content: [RossumContentSection]
   time_spent: Int
 }
 
 type EmbeddedUrlResponse {
   url: URL
-  status: AnnotationStatus
+  status: RossumAnnotationStatus
 }
 
 type StartAnnotationResponse {
-  annotation: Annotation
+  annotation: RossumAnnotation
   session_timeout: String
 }
 
@@ -138,7 +143,7 @@ type StartEmbeddedAnnotationResponse {
 
 type CreateEmbeddedUrlForAnnotationResponse {
   url: URL
-  status: AnnotationStatus
+  status: RossumAnnotationStatus
 }
 
 type Query {
