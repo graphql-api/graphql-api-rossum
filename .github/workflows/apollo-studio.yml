@@ -10,6 +10,7 @@ jobs:
       with:
         graph: Rossum
         federated: false
+        variant: default
         path: ./schema.graphql
       env:
         APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
