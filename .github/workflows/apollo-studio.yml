@@ -1,17 +1,47 @@
 name: Apollo Studio
-
 on: [push]
-
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - name: rover publish
-        uses: danielsinclair/rover-setup@v1
-        with:
-          args: graph publish Rossum@current --schema ../../schema.graphql
+      - uses: actions/checkout@v2
+      - run: |
+        # download and install Rover
+        curl -sSL https://rover.apollo.dev/nix/v0.3.0 | sh
+        # This allows the PATH changes to persist to the next `run` step
+        echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
+      - run: rover graph publish my-graph@my-variant --schema ./schema.graphql
         env:
           APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
+      - uses: actions/setup-node@v2
+
+
+#       - checkout
+#       - run:
+#           name: Install Rover
+#           command: |
+#             # download and install Rover
+#             curl -sSL https://rover.apollo.dev/nix/v0.3.0 | sh
+            
+#             # This allows the PATH changes to persist to the next `run` step
+#             echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
+
+#       # When running on the 'main' branch, push the latest version
+#       # of the schema to Apollo Studio.
+#       - run: |
+#             rover graph publish my-graph@my-variant --schema ./schema.graphql
+
+
+# jobs:
+#   publish:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: rover publish
+#         uses: danielsinclair/rover-setup@v1
+#         with:
+#           args: graph publish Rossum@current --schema ../../schema.graphql
+#         env:
+#           APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
     # runs-on: ubuntu-latest
     # steps:
     # - uses: danielsinclair/rover-publish@v1
