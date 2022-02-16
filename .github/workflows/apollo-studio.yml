@@ -3,17 +3,28 @@ name: Apollo Studio
 on: [push]
 
 jobs:
-  publish:
+  push:
     runs-on: ubuntu-latest
     steps:
-    - uses: danielsinclair/rover-publish@v1
-      with:
-        graph: Rossum@current
-        federated: false
-        artifact: schema.graphql
-      env:
-        APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
+      - uses: actions/checkout@v2
+      - name: rover publish
+        uses: ./
+        with:
+          args: graph publish Rossum@current --schema ./schema.graphql
+        env:
+          APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
 
+  # publish:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: danielsinclair/rover-publish@v1
+  #     with:
+  #       graph: Rossum@current
+  #       federated: true
+  #       subgraph: products
+  #       artifact: products.graphql
+  #     env:
+  #       APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
 
   # fetch:
   #   runs-on: ubuntu-latest
