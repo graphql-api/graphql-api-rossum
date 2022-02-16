@@ -6,14 +6,21 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-    - uses: danielsinclair/rover-publish@v1
-      with:
-        graph: Rossum
-        variant: default
-        path: ./schema.graphql
-      env:
-        APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
-
+      - name: rover publish
+        uses: danielsinclair/rover-setup@v1
+        with:
+          args: graph publish Rossum@current --schema ./schema.graphql
+        env:
+          APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
+    # runs-on: ubuntu-latest
+    # steps:
+    # - uses: danielsinclair/rover-publish@v1
+    #   with:
+    #     graph: Rossum
+    #     variant: default
+    #     path: ./schema.graphql
+    #   env:
+    #     APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
 # jobs:
 #   publish:
 #     runs-on: ubuntu-latest
@@ -26,24 +33,24 @@ jobs:
 #         env:
 #           APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
 
-  # publish:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: danielsinclair/rover-publish@v1
-  #     with:
-  #       graph: Rossum@current
-  #       federated: true
-  #       subgraph: products
-  #       artifact: products.graphql
-  #     env:
-  #       APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
+# publish:
+#   runs-on: ubuntu-latest
+#   steps:
+#   - uses: danielsinclair/rover-publish@v1
+#     with:
+#       graph: Rossum@current
+#       federated: true
+#       subgraph: products
+#       artifact: products.graphql
+#     env:
+#       APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
 
-  # fetch:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: rover fetch
-  #       uses: danielsinclair/rover-setup@v1
-  #       with:
-  #         args: graph publish Rossum@current --schema ../../schema.graphql
-  #       env:
-  #         APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
+# fetch:
+#   runs-on: ubuntu-latest
+#   steps:
+#     - name: rover fetch
+#       uses: danielsinclair/rover-setup@v1
+#       with:
+#         args: graph publish Rossum@current --schema ../../schema.graphql
+#       env:
+#         APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
