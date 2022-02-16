@@ -3,12 +3,24 @@ name: Apollo Studio
 on: [push]
 
 jobs:
-  fetch:
+  publish:
     runs-on: ubuntu-latest
     steps:
-      - name: rover fetch
-        uses: danielsinclair/rover-setup@v1
-        with:
-          args: graph publish Rossum@current --schema ../../schema.graphql
-        env:
-          APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
+    - uses: danielsinclair/rover-publish@v1
+      with:
+        graph: Rossum@current
+        federated: false
+        artifact: schema.graphql
+      env:
+        APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
+
+
+  # fetch:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: rover fetch
+  #       uses: danielsinclair/rover-setup@v1
+  #       with:
+  #         args: graph publish Rossum@current --schema ../../schema.graphql
+  #       env:
+  #         APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
