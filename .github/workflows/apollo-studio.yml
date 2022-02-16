@@ -9,7 +9,6 @@ jobs:
     - uses: danielsinclair/rover-publish@v1
       with:
         graph: Rossum
-        federated: false
         variant: default
         path: ./schema.graphql
       env:
