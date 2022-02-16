@@ -1,20 +1,37 @@
 name: Apollo Studio
 on: [push]
+# https://www.apollographql.com/docs/rover/ci-cd/#full-example-1
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  publish:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - run: |
-        # download and install Rover
-        curl -sSL https://rover.apollo.dev/nix/v0.3.0 | sh
-        # This allows the PATH changes to persist to the next `run` step
-        echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
-      - run: rover graph publish my-graph@my-variant --schema ./schema.graphql
-        env:
-          APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
-      - uses: actions/setup-node@v2
 
+    # https://docs.github.com/en/actions/reference/environments
+    environment: apollo
+
+    # https://docs.github.com/en/actions/reference/encrypted-secrets
+    # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsenv
+    env:
+      APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
+      APOLLO_VCS_COMMIT: ${{ github.event.pull_request.head.sha }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Install Rover
+        run: |
+          curl -sSL https://rover.apollo.dev/nix/v0.1.0 | sh
+
+          # Add Rover to the $GITHUB_PATH so it can be used in another step
+          # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#adding-a-system-path
+          echo "$HOME/.rover/bin" >> $GITHUB_PATH
+      - name: Run check against prod
+        run: |
+          rover graph publish Rossumh@curren --schema ./schema.graphql
 
 #       - checkout
 #       - run:
@@ -22,7 +39,7 @@ jobs:
 #           command: |
 #             # download and install Rover
 #             curl -sSL https://rover.apollo.dev/nix/v0.3.0 | sh
-            
+
 #             # This allows the PATH changes to persist to the next `run` step
 #             echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
 
@@ -30,7 +47,6 @@ jobs:
 #       # of the schema to Apollo Studio.
 #       - run: |
 #             rover graph publish my-graph@my-variant --schema ./schema.graphql
-
 
 # jobs:
 #   publish:
@@ -42,15 +58,15 @@ jobs:
 #           args: graph publish Rossum@current --schema ../../schema.graphql
 #         env:
 #           APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
-    # runs-on: ubuntu-latest
-    # steps:
-    # - uses: danielsinclair/rover-publish@v1
-    #   with:
-    #     graph: Rossum
-    #     variant: default
-    #     path: ./schema.graphql
-    #   env:
-    #     APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
+# runs-on: ubuntu-latest
+# steps:
+# - uses: danielsinclair/rover-publish@v1
+#   with:
+#     graph: Rossum
+#     variant: default
+#     path: ./schema.graphql
+#   env:
+#     APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
 # jobs:
 #   publish:
 #     runs-on: ubuntu-latest
