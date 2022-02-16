@@ -9,7 +9,7 @@ jobs:
       - name: rover publish
         uses: danielsinclair/rover-setup@v1
         with:
-          args: graph publish Rossum@current --schema ./schema.graphql
+          args: graph publish Rossum@current --schema ../../schema.graphql
         env:
           APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
     # runs-on: ubuntu-latest
