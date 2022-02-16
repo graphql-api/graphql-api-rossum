@@ -1,3 +1,4 @@
+import { ApolloError } from 'apollo-server-core'
 import { Resolvers } from '../types'
 import { Node } from '@graphql-api/tools'
 import { getID } from '../dataSource'
@@ -19,16 +20,20 @@ export const resolvers: Resolvers = {
       return null
     },
     original(root) {
-      if (root.s3_name)
-        return `https://api.elis.rossum.ai/v1/original/${root.s3_name}`
+      if (root.s3_name) return `https://api.elis.rossum.ai/v1/original/${root.s3_name}`
     }
   },
   Query: {
-    async listDocuments(root, args, { dataSources: { rossum } }) {
-      return rossum.documents.list(args?.input)
+    listDocuments: async (root, args, { dataSources: { rossum } }) => {
+      try {
+        const list = await rossum['documents'].list(args?.input)
+        return list
+      } catch (error) {
+        throw new ApolloError(error)
+      }
     },
     async retrieveDocument(root, args, { dataSources: { rossum } }) {
-      return rossum.documents.retrieve(args.input)
+      return rossum.documents.retrieve(args?.input)
     }
   }
 }

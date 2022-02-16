@@ -1,45 +1,54 @@
 import { RESTDataSource } from 'apollo-datasource-rest'
+import { AuthorizationToken } from './types'
+export { getRossumContext } from './context'
 
 const urlToId = (url) => url.split('/').pop()
 
 export const getID = (urlOrID) =>
-  typeof urlOrID === 'string' && urlOrID.startsWith('http')
-    ? urlToId(urlOrID)
-    : urlOrID
+  typeof urlOrID === 'string' && urlOrID.startsWith('http') ? urlToId(urlOrID) : urlOrID
 
-const cruds = ['list', 'retrieve', 'create', 'update', 'delete'] as const
+const LIST = 'list'
+type List = typeof LIST
+const RETRIEVE = 'retrieve'
+type Retrieve = typeof RETRIEVE
+const CREATE = 'create'
+type Create = typeof CREATE
+const UPDATE = 'update'
+type Update = typeof UPDATE
+const DELETE = 'delete'
+type Delete = typeof DELETE
+
+const cruds = [LIST, RETRIEVE, CREATE, UPDATE, DELETE] as [List, Retrieve, Create, Update, Delete]
 type Crud = UnpackedReadonly<typeof cruds>
 
 const crudKeys = [
-  ['annotations', ['list', 'retrieve', 'update', 'delete']],
+  ['annotations', [LIST, RETRIEVE, UPDATE, DELETE]],
   'connectors',
-  ['documents', ['list', 'retrieve']],
+  ['documents', [LIST, RETRIEVE]],
   'emails',
   'inboxes',
   'hooks',
   'memberships',
   'notes',
-  ['organizations', ['list', 'retrieve', 'create']],
-  ['organization_groups', ['list', 'retrieve']],
-  ['pages', ['list', 'retrieve']],
+  ['organizations', [LIST, RETRIEVE, CREATE]],
+  ['organization_groups', [LIST, RETRIEVE]],
+  ['pages', [LIST, RETRIEVE]],
   'queues',
   'relations',
   'schemas',
   'suggested_edits',
-  ['users', ['list', 'retrieve', 'create', 'update']],
-  ['groups', ['list', 'retrieve']],
+  ['users', [LIST, RETRIEVE, CREATE, UPDATE]],
+  ['groups', [LIST, RETRIEVE]],
   'workspaces'
 ] as const
 
-type UnpackedReadonlyKey<U> = U extends readonly [infer F, readonly any[]]
-  ? F
-  : U
+type UnpackedReadonlyKey<U> = U extends readonly [infer F, readonly any[]] ? F : U
 type UnpackedReadonly<G> = G extends readonly (infer I)[] ? I : G
 type CrudKeys = UnpackedReadonly<typeof crudKeys>
 
 type ApiPath = UnpackedReadonlyKey<CrudKeys>
 
-type ConfigTuple = [ApiPath, Crud[]]
+type ConfigTuple = [ApiPath, [List, Retrieve, ...(Create | Update | Delete)[]]]
 type Config = (ApiPath | ConfigTuple)[]
 
 type IRossumDataSource = {
@@ -48,17 +57,19 @@ type IRossumDataSource = {
 
 type CrudOperation = {
   retrieve<R extends {} = {}>(params: { id: string } | string): Promise<R>
-  list<R extends {} = {}>({ filter, order }): Promise<R>
+  list<R extends {} = {}, P extends {} = {}>(params?: P): Promise<R>
   create<P extends {} = {}, R extends {} = {}>(params: P): Promise<R>
-  update<P extends {} = {}, R extends {} = {}>(
-    params: { id: string } & P
-  ): Promise<R>
+  update<P extends {} = {}, R extends {} = {}>(params: { id: string } & P): Promise<R>
   delete<R extends {} = {}>(params: { id } | string): Promise<R>
 }
 
 type Operation<K extends Crud = Crud> = { [P in K]: CrudOperation[P] }
 
-export class RossumDataSource extends RESTDataSource {
+type RESTDataSourceCredentials =
+  | { token: AuthorizationToken }
+  | { password: string; username: string }
+
+export class RossumDataSource extends RESTDataSource<RESTDataSourceCredentials | {}> {
   annotations: Operation<'list' | 'retrieve' | 'update' | 'delete'>
   connectors: Operation
   documents: Operation<'list' | 'retrieve'>
@@ -78,38 +89,50 @@ export class RossumDataSource extends RESTDataSource {
   groups: Operation<'list' | 'retrieve'>
   workspaces: Operation
 
-  token: Promise<string>
-  constructor() {
+  token: Promise<AuthorizationToken> | AuthorizationToken
+  private credentials?: string
+  constructor(httpFetch?) {
     super()
     this.baseURL = 'https://api.elis.rossum.ai/v1/'
-    this.token = fetch(`${this.baseURL}auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username: process.env.ROSSUM_USERNAME,
-        password: process.env.ROSSUM_PASSWORD
-      })
-    })
-      .then((data) => data.json())
-      .then((data) => data.key)
+    if (this.context?.['token']) {
+      this.token = this.context['token']
+    } else {
+      const username = this.context?.['username'] || process.env['ROSSUM_USERNAME']
+      const password = this.context?.['password'] || process.env['ROSSUM_PASSWORD']
+      if (typeof username === 'string' && typeof password === 'string') {
+        this.credentials = JSON.stringify({ username, password })
+        try {
+          this.token = (httpFetch || fetch)(`${this.baseURL}auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: this.credentials
+          })
+            .then((data) => data.json())
+            .then((data) => `token ${data.key}`)
+        } catch (error) {
+          throw Error(error)
+        }
+      }
+    }
 
-    const config = (crudKeys as unknown) as Config
-    config.forEach((key) => {
-      const [name, ops]: ConfigTuple = Array.isArray(key)
-        ? key
-        : [key, (cruds as unknown) as Crud[]]
+    // const config = crudKeys
+    crudKeys.forEach((key) => {
+      let name: ApiPath,
+        ops: ConfigTuple[1] = cruds
+      if (Array.isArray(key)) {
+        name = key[0]
+        ops = key[1]
+      } else if (typeof key === 'string') {
+        name = key
+      }
+      // const [name, ops]: ConfigTuple = Array.isArray(key) ? key : [key, cruds]
       ops.forEach((op) => {
-        const method = this[
-          `${op}Entity` as
-            | 'listEntity'
-            | 'retrieveEntity'
-            | 'createEntity'
-            | 'deleteEntity'
-        ]
+        const method =
+          this[`${op}Entity` as 'listEntity' | 'retrieveEntity' | 'createEntity' | 'deleteEntity']
         if (this[name]) {
-          this[name][op] = method
+          this[name][op] = method(name)
         } else {
-          this[name] = { [op]: method } as any
+          this[name] = { [op]: method(name) } as any
         }
       })
     })
@@ -117,17 +140,12 @@ export class RossumDataSource extends RESTDataSource {
 
   async willSendRequest(request) {
     const token = await this.token
-    request.headers.set('Authorization', `token ${token}`)
+    request.headers.set('Authorization', token)
   }
 
   async login() {
-    return this.post(
-      'auth/login',
-      JSON.stringify({
-        username: process.env.ROSSUM_USERNAME,
-        password: process.env.ROSSUM_PASSWORD
-      })
-    )
+    if (typeof this.credentials !== 'string') throw Error('no valid Credentials provided')
+    const authData = await this.post('auth/login', this.credentials)
   }
 
   /** HOOK */
@@ -156,13 +174,7 @@ export class RossumDataSource extends RESTDataSource {
 
   /** ANNOTATIONS */
 
-  async rotateAnnotation({
-    id,
-    rotation
-  }: {
-    id: string
-    rotation: 0 | 90 | 180 | 270
-  }) {
+  async rotateAnnotation({ id, rotation }: { id: string; rotation: 0 | 90 | 180 | 270 }) {
     return this.post(`annotations/${id}/rotate`, {
       headers: { 'Content-Type': 'application/json' },
       body: { rotation_deg: rotation }
@@ -196,9 +208,10 @@ export class RossumDataSource extends RESTDataSource {
   }
 
   /** CRUD */
-
-  listEntity(path) {
-    return ({ filter }) => this.get(path)
+  listEntity = (path) => {
+    return (args) => {
+      return this.get(path).then((data) => data.results)
+    }
   }
   retrieveEntity(path): CrudOperation['retrieve'] {
     return (args) => {

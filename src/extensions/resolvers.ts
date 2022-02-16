@@ -34,7 +34,7 @@ export const resolvers: Resolvers = {
     async listHooks(root, args, { dataSources: { rossum } }, info) {
       return rossum.hooks.list(args?.input)
     },
-    async retrieveHooks(root, args, { dataSources: { rossum } }, info) {
+    async retrieveHook(root, args, { dataSources: { rossum } }, info) {
       return rossum.hooks.retrieve(args.input)
     }
   },
