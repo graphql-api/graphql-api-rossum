@@ -9,13 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     # https://docs.github.com/en/actions/reference/environments
     environment: apollo
-
     # https://docs.github.com/en/actions/reference/encrypted-secrets
     # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsenv
     env:
       APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
       APOLLO_VCS_COMMIT: ${{ github.event.pull_request.head.sha }}
-
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -23,78 +21,9 @@ jobs:
       - name: Install Rover
         run: |
           curl -sSL https://rover.apollo.dev/nix/v0.1.0 | sh
-
           # Add Rover to the $GITHUB_PATH so it can be used in another step
           # https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#adding-a-system-path
           echo "$HOME/.rover/bin" >> $GITHUB_PATH
       - name: Run check against prod
         run: |
           rover graph publish Rossum@current --schema ./schema.graphql
-
-#       - checkout
-#       - run:
-#           name: Install Rover
-#           command: |
-#             # download and install Rover
-#             curl -sSL https://rover.apollo.dev/nix/v0.3.0 | sh
-
-#             # This allows the PATH changes to persist to the next `run` step
-#             echo 'export PATH=$HOME/.rover/bin:$PATH' >> $BASH_ENV
-
-#       # When running on the 'main' branch, push the latest version
-#       # of the schema to Apollo Studio.
-#       - run: |
-#             rover graph publish my-graph@my-variant --schema ./schema.graphql
-
-# jobs:
-#   publish:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: rover publish
-#         uses: danielsinclair/rover-setup@v1
-#         with:
-#           args: graph publish Rossum@current --schema ../../schema.graphql
-#         env:
-#           APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
-# runs-on: ubuntu-latest
-# steps:
-# - uses: danielsinclair/rover-publish@v1
-#   with:
-#     graph: Rossum
-#     variant: default
-#     path: ./schema.graphql
-#   env:
-#     APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
-# jobs:
-#   publish:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: danielsinclair/rover-setup@v1
-#       - name: rover publish
-#         uses: ./
-#         with:
-#           args: graph publish Rossum@current --schema ./schema.graphql
-#         env:
-#           APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
-
-# publish:
-#   runs-on: ubuntu-latest
-#   steps:
-#   - uses: danielsinclair/rover-publish@v1
-#     with:
-#       graph: Rossum@current
-#       federated: true
-#       subgraph: products
-#       artifact: products.graphql
-#     env:
-#       APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
-
-# fetch:
-#   runs-on: ubuntu-latest
-#   steps:
-#     - name: rover fetch
-#       uses: danielsinclair/rover-setup@v1
-#       with:
-#         args: graph publish Rossum@current --schema ../../schema.graphql
-#       env:
-#         APOLLO_KEY: ${{ secrets.APOLLO_KEY }}
