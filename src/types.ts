@@ -1,6 +1,8 @@
 import { GraphQLResolverMap } from 'apollo-graphql'
 import { RossumDataSource } from './dataSource'
 
+export type Context = { datasource: RossumDataSource }
+
 export type Resolvers = GraphQLResolverMap<{
   dataSources: { rossum: RossumDataSource }
 }>
