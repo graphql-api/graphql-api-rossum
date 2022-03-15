@@ -1,0 +1,510 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+directive @external on FIELD_DEFINITION
+
+directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
+
+directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+
+directive @key(fields: _FieldSet!) on OBJECT | INTERFACE
+
+scalar _FieldSet
+
+input ChangeRossumPasswordInput {
+  new_password1: String
+  new_password2: String
+  old_password: String
+}
+
+type CreateEmbeddedUrlForAnnotationResponse {
+  status: RossumAnnotationStatus
+  url: URL
+}
+
+input CreateRossumConnectorInput {
+  authorization_token: String
+  name: String!
+  queue: [URL!]!
+  service_url: URL!
+}
+
+input CreateRossumHookInput {
+  config: RossumHookConfigInput
+  events: [RossumHookEvent]
+  name: String
+  queues: [URL]
+}
+
+scalar DateTime
+
+input DeleteRossumConnectorInput {
+  id: ID!
+}
+
+input DeleteRossumHookInput {
+  id: ID!
+}
+
+scalar EmailAddress
+
+type EmbeddedUrlResponse {
+  status: RossumAnnotationStatus
+  url: URL
+}
+
+scalar JSON
+
+input ListRossumDocumentsFilterInput {
+  arrived_at: DateTime
+  id: ID
+  original_file_name: String
+}
+
+input ListRossumDocumentsInput {
+  filter: ListRossumDocumentsFilterInput
+  order: ListRossumDocumentsOrderInput
+}
+
+input ListRossumDocumentsOrderInput {
+  arrived_at: DateTime
+  id: ID
+  mime_type: String
+  original_file_name: String
+  s3_name: String
+}
+
+input ListRossumInboxesFilterInput {
+  bounce_deleted_annotations: Boolean
+  bounce_email_to: EmailAddress
+  bounce_postponed_annotations: Boolean
+  bounce_unprocessable_attachments: Boolean
+  email: EmailAddress
+  email_prefix: String
+  id: ID
+  name: String
+}
+
+input ListRossumInboxesInput {
+  filter: ListRossumInboxesFilterInput
+}
+
+input ListRossumWorkspacesFilterInput {
+  id: ID
+  name: String
+  organization: ID
+}
+
+input ListRossumWorkspacesInput {
+  filter: ListRossumWorkspacesFilterInput
+  order: ListRossumWorkspacesOrderInput
+}
+
+input ListRossumWorkspacesOrderInput {
+  id: ID
+  name: String
+}
+
+type Mutation {
+  changePassword(input: ChangeRossumPasswordInput!): RossumUser
+  createConnector(input: CreateRossumConnectorInput!): RossumConnector
+  createEmail: RossumEmail
+  createHook(input: CreateRossumHookInput!): RossumHook
+  createInbox: RossumInbox
+  createMembership: RossumMembership
+  createUser: RossumUser
+  deleteConnector(input: DeleteRossumConnectorInput!): RossumConnector
+  deleteHook(input: DeleteRossumHookInput!): RossumHook
+  deleteInbox: RossumInbox
+  deleteMembership: RossumMembership
+  deleteUser: RossumUser
+  login: RossumToken
+  resetPassword(input: ResetRossumPasswordInput!): ResetRossumPasswordPayload
+  sendEmail: RossumEmail
+  testHook(input: TestRossumHookInput): TestRossumHookResponse
+  updateConnector(input: UpdateRossumConnectorInput!): RossumConnector
+  updateEmail: RossumEmail
+  updateHook(input: UpdateRossumHookInput!): RossumHook
+  updateInbox: RossumInbox
+  updateMembership: RossumMembership
+  updateUser: RossumUser
+}
+
+interface Node {
+  id: ID!
+}
+
+type Query {
+  createEmbeddedUrlForAnnotation: CreateEmbeddedUrlForAnnotationResponse
+  listConnectors: [RossumConnector]
+  listDocuments(input: ListRossumDocumentsInput): [RossumDocument]
+  listEmails: [RossumEmail]
+  listHooks: [RossumHook]
+  listInboxes(input: ListRossumInboxesInput): [RossumInbox]
+  listMemberships: [RossumMembership]
+  listPages: [RossumPage]
+  listUserRoles: [RossumUserRole]
+  listUsers: [RossumUser]
+  listWorkspaces(input: ListRossumWorkspacesInput): [RossumWorkspace]
+  retrieveConnector: RossumConnector
+  retrieveDocument(input: RetrieveRossumDocumentInput!): RossumDocument
+  retrieveEmail: RossumEmail
+  retrieveHook: RossumHook
+  retrieveInbox: RossumInbox
+  retrieveMembership: RossumMembership
+  retrievePage: RossumPage
+  retrieveUser: RossumUser
+  retrieveUserRole: RossumUserRole
+  retrieveWorkspace(input: RetrieveRossumWorkspaceInput!): RossumWorkspace
+  startAnnotation: StartAnnotationResponse
+  startEmbeddedAnnotation: StartEmbeddedAnnotationResponse
+  token: RossumToken
+}
+
+input ResetRossumPasswordInput {
+  email: EmailAddress
+}
+
+type ResetRossumPasswordPayload {
+  detail: String
+}
+
+input RetrieveRossumDocumentInput {
+  id: ID!
+}
+
+input RetrieveRossumWorkspaceInput {
+  id: ID!
+}
+
+type RossumAnnotation implements Node & RossumEntity @key(fields: "id") {
+  assigned_at: String
+  confirmed_at: DateTime
+  content: [RossumContentSection]
+  document: RossumDocument
+  exported_at: String
+  id: ID!
+  messages: [String]
+  modified_at: DateTime
+  modifier: String
+  pages: [RossumPage]
+  queue: String
+  relations: [String]
+  rir_poll_id: String
+  schema: RossumAnnotationSchema
+  status: String
+  time_spent: Int
+  url: URL!
+}
+
+type RossumAnnotationContent implements Node & RossumEntity @key(fields: "id") {
+  id: ID!
+  url: URL!
+}
+
+type RossumAnnotationSchema {
+  id: ID!
+}
+
+enum RossumAnnotationStatus {
+  """Annotation is validated and confirmed by the user. This status must be explicitly enabled on the queue to be present."""
+  confirmed
+  """When the annotation was deleted by the user."""
+  deleted
+  """Annotation is validated and successfully passed all hooks; this is the typical terminal state of an annotation."""
+  exported
+  """Annotation is validated and is now awaiting the completion of connector save call. See connector extension for more information on this status."""
+  exporting
+  """When the connector returned an error."""
+  failed_export
+  """Import failed e.g. due to a malformed document file."""
+  failed_import
+  """Document is being processed by the AI Engine for data extraction; initial state of the annotation."""
+  importing
+  """Operator has chosen to postpone the annotation instead of exporting it."""
+  postponed
+  """Only metadata was preserved after a deletion. Internal status, shall not be used in production."""
+  purged
+  """Annotation is undergoing validation in the user interface."""
+  reviewing
+  """Annotation was split in user interface and new annotations were created from it."""
+  split
+  """Initial extraction step is done and the annotation is waiting for user validation."""
+  to_review
+}
+
+type RossumConnector implements Node & RossumEntity @key(fields: "id") {
+  asynchronous: Boolean
+  authorization_token: String
+  client_ssl_certificate: String
+  id: ID!
+  metadata: JSON
+  name: String
+  params: String
+  queues: [RossumQueue]
+  service_url: URL
+  url: URL!
+}
+
+interface RossumContent {
+  category: Rossum_CONTENT_CATEGORY
+  schema_id: String
+}
+
+type RossumContentSection implements Node & RossumEntity @key(fields: "id") {
+  category: Rossum_CONTENT_CATEGORY
+  children: [RossumContent]
+  id: ID!
+  schema_id: ID
+  url: URL!
+}
+
+type RossumDatapoint implements RossumContent {
+  category: Rossum_CONTENT_CATEGORY
+  rir_confidence: String
+  schema_id: String
+  type: Rossum_CONTENT_VALUE_TYPE
+  value: String
+}
+
+type RossumDocument implements Node & RossumEntity @key(fields: "id") {
+  annotations: [RossumAnnotation]
+  arrived_at: String
+  content: String
+  file: String
+  id: ID!
+  mime_type: String
+  original: String
+  original_file_name: String
+  s3_name: String
+  url: URL!
+}
+
+type RossumEmail implements Node & RossumEntity @key(fields: "id") {
+  arrived_at: DateTime
+  bcc: [RossumEmailParticipant]
+  body_text_html: String
+  body_text_plain: String
+  cc: [RossumEmailParticipant]
+  children: [RossumEmail]
+  documents: [RossumDocument]
+  from: RossumEmailParticipant
+  id: ID!
+  inbox: RossumInbox
+  metadata: JSON
+  parent: RossumEmail
+  subject: String
+  to: [RossumEmailParticipant]
+  type: RossumEmailType
+  url: URL!
+}
+
+type RossumEmailParticipant {
+  email: EmailAddress
+  name: String
+}
+
+enum RossumEmailType {
+  incoming
+  outgoing
+}
+
+interface RossumEntity {
+  url: URL!
+}
+
+type RossumHook implements Node & RossumEntity @key(fields: "id") {
+  active: Boolean
+  config: RossumHookConfig
+  events: [RossumHookEvent]
+  id: ID!
+  name: String
+  queues: [RossumQueue]
+  run_after: [String]
+  sideload: [String]
+  type: RossumHookType
+  url: URL!
+}
+
+type RossumHookConfig {
+  client_ssl_certificate: String
+  insecure_ssl: Boolean
+  secret: String
+  url: String
+}
+
+input RossumHookConfigInput {
+  client_ssl_certificate: String
+  insecure_ssl: Boolean
+  secret: String
+  url: String
+}
+
+enum RossumHookEvent {
+  annotation_content
+  """annotation_content.export"""
+  annotation_content__export
+  annotation_content__initialize
+  annotation_content__user_update
+  annotation_status
+  annotation_status__changed
+  """email.received"""
+  email
+  email__received
+}
+
+enum RossumHookType {
+  function
+  webhook
+}
+
+type RossumInbox implements Node & RossumEntity @key(fields: "id") {
+  bounce_deleted_annotations: Boolean
+  bounce_email_to: EmailAddress
+  bounce_email_with_no_attachments: Boolean
+  bounce_unprocessable_attachments: Boolean
+  email: EmailAddress
+  email_prefix: String
+  id: ID!
+  name: String
+  queues: [URL]
+  url: URL!
+}
+
+type RossumMembership implements Node & RossumEntity @key(fields: "id") {
+  id: ID!
+  organization: RossumOrganization
+  url: URL!
+  user: RossumUser
+}
+
+type RossumMultivalue implements RossumContent {
+  category: Rossum_CONTENT_CATEGORY
+  children: JSON
+  schema_id: String
+}
+
+type RossumOrganization implements Node & RossumEntity @key(fields: "id") {
+  id: ID!
+  is_trial: Boolean
+  name: String
+  trial_expires_at: String
+  url: URL!
+  users: [RossumUser]
+  workspaces: [RossumWorkspace]
+}
+
+type RossumPage implements Node & RossumEntity @key(fields: "id") {
+  annotation: String
+  content: URL
+  id: ID!
+  metadata: JSON
+  mime_type: String
+  number: Int
+  rotation_deg: Int
+  s3_name: String
+  url: URL!
+}
+
+type RossumQueue implements Node & RossumEntity @key(fields: "id") {
+  export: [RossumAnnotation]
+  id: ID!
+  name: String
+  url: URL!
+  workspace: RossumWorkspace
+}
+
+type RossumToken {
+  key: String
+}
+
+type RossumTuple implements RossumContent {
+  category: Rossum_CONTENT_CATEGORY
+  schema_id: String
+}
+
+type RossumUser implements Node & RossumEntity @key(fields: "id") {
+  date_joined: DateTime
+  email: EmailAddress
+  first_name: String
+  groups: [String]
+  id: ID!
+  is_active: Boolean
+  last_login: DateTime
+  last_name: String
+  oidc_id: String
+  organization: RossumOrganization
+  queues: [RossumUserRole]
+  url: URL!
+  username: String
+}
+
+type RossumUserRole implements Node & RossumEntity @key(fields: "id") {
+  id: ID!
+  name: String
+  url: URL!
+}
+
+type RossumWorkspace implements Node & RossumEntity @key(fields: "id") {
+  autopilot: Boolean
+  id: ID!
+  name: String
+  organization: RossumOrganization
+  queues: [RossumQueue]
+  url: URL!
+}
+
+enum Rossum_CONTENT_CATEGORY {
+  datapoint
+  multivalue
+  section
+  tuple
+}
+
+enum Rossum_CONTENT_VALUE_TYPE {
+  number
+  string
+}
+
+type StartAnnotationResponse {
+  annotation: RossumAnnotation
+  session_timeout: String
+}
+
+type StartEmbeddedAnnotationResponse {
+  url: URL
+}
+
+input TestRossumHookInput {
+  config: RossumHookConfigInput
+  payload: TestRossumHookPayloadInput!
+}
+
+"""Payload sent to the Hook, please note only supported combination of action and event can be passed."""
+input TestRossumHookPayloadInput {
+  action: String
+  annotation: JSON
+  document: JSON
+  event: RossumHookEvent
+  settings: JSON
+}
+
+type TestRossumHookResponse {
+  detail: String
+}
+
+scalar URL
+
+input UpdateRossumConnectorInput {
+  id: ID!
+}
+
+input UpdateRossumHookInput {
+  config: RossumHookConfigInput
+  events: [RossumHookEvent]
+  id: ID!
+  name: String
+  queues: [URL]
+}

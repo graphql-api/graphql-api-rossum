@@ -1,5 +1,5 @@
 module.exports = {
-  displayName: 'graphql-rossum',
+  displayName: '@graphql-api/rossum',
   preset: '../../../jest.preset.js',
   globals: {
     'ts-jest': {

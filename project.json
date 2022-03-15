@@ -1,0 +1,32 @@
+{
+  "root": "libs/graphql/rossum",
+  "sourceRoot": "libs/graphql/rossum/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": ["libs/graphql/rossum/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/graphql/rossum"],
+      "options": {
+        "jestConfig": "libs/graphql/rossum/jest.config.js",
+        "passWithNoTests": true
+      }
+    },
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/graphql/rossum",
+        "tsConfig": "libs/graphql/rossum/tsconfig.lib.json",
+        "packageJson": "libs/graphql/rossum/package.json",
+        "main": "libs/graphql/rossum/src/index.ts",
+        "assets": ["libs/graphql/rossum/*.md"]
+      }
+    }
+  }
+}

@@ -1,3 +1,6 @@
+import fs from 'fs'
+import { buildClientSchema } from 'graphql'
+
 import { gql } from 'graphql-tag'
 import { loadTypedefsSync } from '@graphql-tools/load'
 import { mergeTypeDefs } from '@graphql-tools/merge'

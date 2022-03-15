@@ -143,6 +143,11 @@ export class RossumDataSource extends RESTDataSource<RESTDataSourceCredentials |
     request.headers.set('Authorization', token)
   }
 
+  async downloadFile(url: string) {
+    this.resolveURL
+    const file = fetch(url, { headers: { Authorization: await this.token } })
+  }
+
   async login() {
     if (typeof this.credentials !== 'string') throw Error('no valid Credentials provided')
     const authData = await this.post('auth/login', this.credentials)
